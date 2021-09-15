@@ -16,7 +16,19 @@ export class AppComponent {
     this.todos.push(new Todo(3, 'Fazer curso angular', true));
   }
 
-  alterarTexto() {
-    this.title = 'teste';
+  remove(todo: Todo) {
+    const index = this.todos.indexOf(todo);
+    if (index !== -1) {
+      //deleta item(indice e 1 quantidade de intem a ser deletado)
+      this.todos.splice(index, 1);
+    }
+  }
+
+  markAsDone(todo: Todo) {
+    todo.done = true;
+  }
+
+  markAsUndone(todo: Todo) {
+   todo.done = false;
   }
 }
