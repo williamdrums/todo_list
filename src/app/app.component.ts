@@ -11,7 +11,7 @@ export class AppComponent {
   public todos: Todo[] = [];
   public title: string = 'Minhas Tarefas';
   public form: FormGroup;
-  public todo!: Todo;
+  public todo: Todo | undefined;
 
   constructor(private formBuilder: FormBuilder) {
 
@@ -28,7 +28,8 @@ export class AppComponent {
 
   addTodo() {
     const title = this.form.controls['title'].value;
-    const index = this.todos.indexOf(this.todo)
+    const index = this.todos.indexOf(this.todo!)
+    this.todo = undefined;
 
     if (index == -1) {
       const id = this.todos.length + 1;
