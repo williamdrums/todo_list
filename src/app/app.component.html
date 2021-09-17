@@ -6,8 +6,9 @@
         {{ todo.id }}. {{ todo.title }} |
         <button *ngIf="!todo.done" (click)="markAsDone(todo)">Concluir</button> |
         <button *ngIf="todo.done" (click)="markAsUndone(todo)">Refazer</button> |
+        <button *ngIf="!todo.done" (click)="update(todo)">Editar</button> |
         <button (click)="remove(todo)">Remover</button>
-    </li>
+    </li> 
 </ul>
 
 <form [formGroup]="form">
