@@ -26,10 +26,10 @@ export class AppComponent {
     this.load();
   }
 
-  add() {
+  addTodo() {
     const title = this.form.controls['title'].value;
     const index = this.todos.indexOf(this.todo)
-  
+
     if (index == -1) {
       const id = this.todos.length + 1;
       this.todos.push(new Todo(id, title, false));
@@ -49,7 +49,6 @@ export class AppComponent {
   remove(todo: Todo) {
     const index = this.todos.indexOf(todo);
     if (index !== -1) {
-      //deletar item(indice e 1 quantidade a ser deletado)
       this.todos.splice(index, 1);
     }
     this.save();
@@ -66,18 +65,21 @@ export class AppComponent {
   }
 
   save() {
-    //convertendo JSON pra string
     const data = JSON.stringify(this.todos);
     localStorage.setItem('todos', data);
   }
 
   load() {
     const data = localStorage.getItem('todos');
-    //convertentdo os dados pra json
-    this.todos = JSON.parse(data!);
+
+    if (data) {
+      this.todos = JSON.parse(data!);
+    } else {
+      this.todos = [];
+    }
   }
 
-  update(todo: Todo) {
+  setForm(todo: Todo) {
     this.form.patchValue({ title: todo.title });
     this.todo = todo;
   }
