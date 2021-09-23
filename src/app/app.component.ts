@@ -1,19 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Todo } from 'src/models/todo.model';
+import { AppService } from './app.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   public todos: Todo[] = [];
-  public title: string = 'Minhas Tarefas';
+  public title2: string = 'Minhas Tarefas';
   public form: FormGroup;
-  public todo: Todo | undefined;
+  public todo!: Todo;
+  public isInvalid: boolean = false;
+  public id !: number;
 
-  constructor(private formBuilder: FormBuilder) {
+
+  constructor(private formBuilder: FormBuilder, private todoService: AppService, private route: ActivatedRoute,
+    private router: Router) {
 
     this.form = this.formBuilder.group({
       title: ['', Validators.compose([
@@ -22,24 +28,37 @@ export class AppComponent {
         Validators.required
       ])]
     });
-
     this.load();
   }
 
-  addTodo() {
-    const title = this.form.controls['title'].value;
-    const index = this.todos.indexOf(this.todo!)
-    this.todo = undefined;
+  ngOnInit(): void {
+    this.id = this.route.snapshot.params['id'];
+    this.todo = new Todo(this.id, "", false);
+    if (this.id != -1) {
+      this.todoService.findById(this.id).subscribe(
+        response => { this.todo = response }
+      );
+    }
+  }
 
-    if (index == -1) {
-      const id = this.todos.length + 1;
-      this.todos.push(new Todo(id, title, false));
-      this.save();
-      this.clear();
+  addTodo(todoForm: any) {
+    if (todoForm.invalid) {
+      this.isInvalid = true;
     } else {
-      this.todos[index].title = title;
-      this.save();
-      this.clear();
+      this.isInvalid = false;
+    }
+
+    if (this.id == undefined) {
+      this.todoService.create(this.todo).subscribe((data: any) => {
+        console.log(data);
+        this.load();
+      });
+    } else {
+      this.todoService.update(this.todo).subscribe((data: any) => {
+        console.log(data);
+        this.load();
+        this.clear();
+      });
     }
   }
 
@@ -48,36 +67,34 @@ export class AppComponent {
   }
 
   remove(todo: Todo) {
-    const index = this.todos.indexOf(todo);
-    if (index !== -1) {
-      this.todos.splice(index, 1);
-    }
-    this.save();
+    this.todoService.delete(todo.id!).subscribe(data => {
+      this.load();
+    });
   }
 
   markAsDone(todo: Todo) {
     todo.done = true;
-    this.save();
+    this.todo = todo;
+    this.todoService.update(this.todo).subscribe((data: any) => {
+      console.log(data);
+    });
   }
 
   markAsUndone(todo: Todo) {
     todo.done = false;
-    this.save();
-  }
-
-  save() {
-    const data = JSON.stringify(this.todos);
-    localStorage.setItem('todos', data);
+    this.todo = todo;
+    this.todoService.update(this.todo).subscribe((data: any) => {
+      console.log(data);
+    });
   }
 
   load() {
-    const data = localStorage.getItem('todos');
-
-    if (data) {
-      this.todos = JSON.parse(data!);
-    } else {
-      this.todos = [];
-    }
+    this.todoService.findAll().subscribe(
+      response => {
+        console.log(response);
+        this.todos = response;
+      }
+    );
   }
 
   setForm(todo: Todo) {
