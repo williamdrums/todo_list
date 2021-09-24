@@ -11,15 +11,12 @@ import { AppService } from './app.service';
 })
 export class AppComponent implements OnInit {
   public todos: Todo[] = [];
-  public title2: string = 'Minhas Tarefas';
+  public titleApp: string = 'Minhas Tarefas';
   public form: FormGroup;
   public todo!: Todo;
-  public isInvalid: boolean = false;
-  public id !: number;
 
 
-  constructor(private formBuilder: FormBuilder, private todoService: AppService, private route: ActivatedRoute,
-    private router: Router) {
+  constructor(private formBuilder: FormBuilder, private todoService: AppService) {
 
     this.form = this.formBuilder.group({
       title: ['', Validators.compose([
@@ -32,34 +29,30 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.params['id'];
-    this.todo = new Todo(this.id, "", false);
-    if (this.id != -1) {
-      this.todoService.findById(this.id).subscribe(
-        response => { this.todo = response }
-      );
-    }
+    this.todo = new Todo();
   }
 
-  addTodo(todoForm: any) {
-    if (todoForm.invalid) {
-      this.isInvalid = true;
-    } else {
-      this.isInvalid = false;
-    }
+  addTodo() {
+    this.todo.title = this.form.controls['title'].value;
+    this.todo.done = false;
 
-    if (this.id == undefined) {
-      this.todoService.create(this.todo).subscribe((data: any) => {
-        console.log(data);
-        this.load();
-      });
-    } else {
-      this.todoService.update(this.todo).subscribe((data: any) => {
-        console.log(data);
+    if (!this.todo.id) {
+      this.todoService.create(this.todo!).subscribe((response: any) => {
         this.load();
         this.clear();
       });
+    } else {
+      this.update(this.todo);
     }
+  }
+
+  update(todo: Todo) {
+    this.todoService.update(this.todo!).subscribe((response: any) => {
+      //resetando objeto 
+      this.todo = { id: undefined, title: '', done: false };
+      this.load();
+      this.clear();
+    });
   }
 
   clear() {
@@ -67,7 +60,7 @@ export class AppComponent implements OnInit {
   }
 
   remove(todo: Todo) {
-    this.todoService.delete(todo.id!).subscribe(data => {
+    this.todoService.delete(todo.id!).subscribe(response => {
       this.load();
     });
   }
@@ -75,23 +68,18 @@ export class AppComponent implements OnInit {
   markAsDone(todo: Todo) {
     todo.done = true;
     this.todo = todo;
-    this.todoService.update(this.todo).subscribe((data: any) => {
-      console.log(data);
-    });
+    this.update(this.todo);
   }
 
   markAsUndone(todo: Todo) {
     todo.done = false;
     this.todo = todo;
-    this.todoService.update(this.todo).subscribe((data: any) => {
-      console.log(data);
-    });
+    this.update(this.todo);
   }
 
   load() {
     this.todoService.findAll().subscribe(
       response => {
-        console.log(response);
         this.todos = response;
       }
     );

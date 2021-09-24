@@ -1,4 +1,4 @@
-<h1>{{ title2 }}</h1>
+<h1>{{ titleApp }}</h1>
 
 <ul>
     <p *ngIf="todos.length == 0"><small>Não tem nenhuma tarefa hoje!</small></p>
@@ -12,12 +12,12 @@
     </li>
 </ul>
 
-<form (ngSubmit)="addTodo(todoForm)" #todoForm="ngForm">
-    <fieldset class="form-group">
-        <label for="tarefa">Tarefa: </label>
-        <input type="text" [(ngModel)]="todo.title" name="title" placeholder="Titulo da Tarefa" maxlength="60">
+ <form class="form" [formGroup]="form">
+    <fieldset>
+        <label>Tarefa: </label>
+        <input type="text" placeholder="Titulo da Tarefa" maxlength="60" formControlName="title">
         <small class="danger" *ngIf="form.controls.title.invalid && !form.controls.title.pristine">Este campo deve
             conter entre 3 e 60 caracteres</small>
-        <button type="submit">Salvar</button>
+        <button class="button" [disabled]="form.invalid" (click)="addTodo()">Salvar</button>
     </fieldset>
-</form>
+</form> 
