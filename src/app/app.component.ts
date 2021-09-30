@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { Todo } from 'src/models/todo.model';
 import { AppService } from './app.service';
 
@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
   public todo!: Todo;
 
 
-  constructor(private formBuilder: FormBuilder, private todoService: AppService) {
+  constructor(private formBuilder: FormBuilder, private todoService: AppService, private toastr: ToastrService) {
 
     this.form = this.formBuilder.group({
       title: ['', Validators.compose([
@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
 
     if (!this.todo.id) {
       this.todoService.create(this.todo!).subscribe((response: any) => {
+        this.toastr.success('Tarefa Cadastrada!')
         this.load();
         this.clear();
       });
@@ -48,6 +49,8 @@ export class AppComponent implements OnInit {
 
   update(todo: Todo) {
     this.todoService.update(this.todo!).subscribe((response: any) => {
+
+      this.toastr.success('Tarefa Atualizada!')
       //resetando objeto 
       this.todo = { id: undefined, title: '', done: false };
       this.load();
@@ -61,6 +64,7 @@ export class AppComponent implements OnInit {
 
   remove(todo: Todo) {
     this.todoService.delete(todo.id!).subscribe(response => {
+      this.toastr.success('Tarefa Excluida com sucesso!')
       this.load();
     });
   }
