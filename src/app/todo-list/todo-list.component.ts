@@ -11,6 +11,7 @@ import { AppService } from '../app.service';
 })
 export class TodoListComponent implements OnInit {
 
+  public mode = 'list';
   public todos: Todo[] = [];
   public titleApp: string = 'Minhas Tarefas';
   public form: FormGroup;
@@ -40,6 +41,7 @@ export class TodoListComponent implements OnInit {
     if (!this.todo.id) {
       this.todoService.create(this.todo!).subscribe((response: any) => {
         this.toastr.success('Tarefa Cadastrada!')
+        this.mode = 'list';
         this.load();
         this.clear();
       });
@@ -93,6 +95,10 @@ export class TodoListComponent implements OnInit {
 
   clear() {
     this.form.reset();
+  }
+
+  changeMode(mode: string) {
+    this.mode = mode;
   }
 
 }
